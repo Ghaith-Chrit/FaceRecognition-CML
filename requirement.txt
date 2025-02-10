@@ -5,3 +5,5 @@ kagglehub
 matplotlib
 seaborn
 jupyter
+scikit-image
+imutils
