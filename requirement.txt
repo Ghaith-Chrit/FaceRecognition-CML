@@ -5,3 +5,4 @@ kagglehub
 matplotlib
 seaborn
 jupyter
+opencv-contrib-python
