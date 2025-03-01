@@ -5,5 +5,7 @@ kagglehub
 matplotlib
 seaborn
 jupyter
-opencv-contrib-python
 kymatio
+scikit-image
+imutils
+opencv-contrib-python
