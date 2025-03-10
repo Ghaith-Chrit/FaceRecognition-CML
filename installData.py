@@ -6,7 +6,7 @@ import config as cfg
 import kagglehub.auth
 import matplotlib.pyplot as plt
 
-from yt_faces_processor import YTFacesProcessor
+from yt_faces import YTFacesProcessor
 
 
 def login():

@@ -8,3 +8,4 @@ jupyter
 scikit-image
 imutils
 opencv-contrib-python
+ipywidgets
