@@ -6,6 +6,7 @@ import config as cfg
 import kagglehub.auth
 import matplotlib.pyplot as plt
 
+from yt_faces_processor import YTFacesProcessor
 
 def login():
     kagglehub.login()
@@ -146,14 +147,19 @@ def process_split(root_dir):
     download_dataset_and_move(cfg.OTHER_DATASET, other_dataset_path, args.force)
     combine_all(other_dataset_actual_path, other_dist_path)
 
+def process_yt_faces(root_dir):
+    yt_faces_path = os.path.join(root_dir, cfg.DATA_YT_FACES)
+
+    download_dataset_and_move(cfg.YT_FACES, yt_faces_path, args.force)
+    YTFacesProcessor(yt_faces_path).process()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "dataset",
         default="all",
-        help="Options: all, caltech, split",
-        choices=["all", "caltech", "split"],
+        help="Options: all, caltech, split, yt_faces",
+        choices=["all", "caltech", "split", "yt_faces"],
     )
 
     parser.add_argument("--force", default=False, help="Redownload data")
@@ -174,3 +180,6 @@ if __name__ == "__main__":
 
     if args.dataset == "split" or args.dataset == "all":
         process_split(ROOT_DIR)
+    
+    if args.dataset == "yt_faces" or args.dataset == "all":
+        process_yt_faces(ROOT_DIR)
