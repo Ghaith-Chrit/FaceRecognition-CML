@@ -55,6 +55,7 @@ class YTFacesProcessor:
 
                 self.face_index[name] = (num_frames // 5) + self.face_index.get(name, 0)
 
+
                 progress.remove_task(frame_task)
 
         except Exception as e:
@@ -64,3 +65,4 @@ class YTFacesProcessor:
         face_path = os.path.join(name_dir, f"face_{index}.png")
         if not os.path.exists(face_path):
             cv2.imwrite(face_path, colour_image)
+
