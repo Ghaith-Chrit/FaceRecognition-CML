@@ -31,7 +31,7 @@ class YTFacesProcessor:
                 self.process_file(file_path, progress)
                 progress.update(task, advance=1)
 
-    def process_file(self, file_path, progress):
+    def process_file(self, file_path, progress, skip_frames=5):
         try:
             with np.load(file_path, mmap_mode="r") as data:
                 colour_images = data["colorImages"]
@@ -46,14 +46,15 @@ class YTFacesProcessor:
                 num_frames = colour_images.shape[-1]
                 formatted_name = f"{name[:25]:<25}"
 
-                frame_task = progress.add_task(f"[green]Frames {formatted_name}", total=num_frames)
+                frame_task = progress.add_task(f"[green]Frames {formatted_name}", total=num_frames // skip_frames)
 
-                for i in range(num_frames):
+                for i in range(0, num_frames, 5):
                     frame = colour_images[..., i]
-                    self.process_image(name_dir, frame, i + self.face_index.get(name, 0))
+                    self.process_image(name_dir, frame, (i // 5) + self.face_index.get(name, 0))
                     progress.update(frame_task, advance=1)
 
-                self.face_index[name] = num_frames + self.face_index.get(name, 0)
+                self.face_index[name] = (num_frames // 5) + self.face_index.get(name, 0)
+
 
                 progress.remove_task(frame_task)
 
@@ -64,3 +65,4 @@ class YTFacesProcessor:
         face_path = os.path.join(name_dir, f"face_{index}.png")
         if not os.path.exists(face_path):
             cv2.imwrite(face_path, colour_image)
+
