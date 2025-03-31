@@ -5,6 +5,7 @@ kagglehub
 matplotlib
 seaborn
 jupyter
+kymatio
 scikit-image
 imutils
 opencv-contrib-python
