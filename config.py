@@ -1,4 +1,5 @@
 CALTECH_101 = "imbikramsaha/caltech-101"
+YT_FACES = "selfishgene/youtube-faces-with-facial-keypoints"
 FACE_DATASET = "jessicali9530/lfw-dataset"
 OTHER_DATASET = "joaopauloschuler/cifar10-128x128-resized-via-cai-super-resolution"
 YT_FACES = "selfishgene/youtube-faces-with-facial-keypoints"

@@ -45,7 +45,6 @@ class YTFacesProcessor:
 
                 num_frames = colour_images.shape[-1]
                 formatted_name = f"{name[:25]:<25}"
-
                 frame_task = progress.add_task(f"[green]Frames {formatted_name}", total=num_frames // 5)
 
                 for i in range(0, num_frames, 5):
@@ -64,3 +63,4 @@ class YTFacesProcessor:
         face_path = os.path.join(name_dir, f"face_{index}.png")
         if not os.path.exists(face_path):
             cv2.imwrite(face_path, colour_image)
+

@@ -180,6 +180,6 @@ if __name__ == "__main__":
 
     if args.dataset == "split" or args.dataset == "all":
         process_split(ROOT_DIR)
-    
+
     if args.dataset == "yt_faces" or args.dataset == "all":
         process_yt_faces(ROOT_DIR)
