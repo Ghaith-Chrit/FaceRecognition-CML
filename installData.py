@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 from yt_faces_processor import YTFacesProcessor
 
-
 def login():
     kagglehub.login()
 
