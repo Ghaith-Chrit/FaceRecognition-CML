@@ -1,4 +1,5 @@
 import glob
+import math
 import os
 import random
 import shutil
@@ -16,7 +17,7 @@ class YTFacesProcessor:
         self.face_index = {}
         self.largest_read_res = [0, 0]
 
-    def process(self, invalidate_cache=False):
+    def process(self, invalidate_cache=False, frames_per_recording=-1):
         os.makedirs(self.faces_dir, exist_ok=True)
         npz_files = [os.path.join(root, file)
                      for root, _, files in os.walk(self.dataset_dir)
@@ -34,7 +35,7 @@ class YTFacesProcessor:
             task = progress.add_task("Processing Files", total=len(npz_files))
 
             for file_path in npz_files:
-                self.process_file(file_path, progress, invalidate_cache)
+                self.process_file(file_path, progress, invalidate_cache, frames_per_recording)
                 progress.update(task, advance=1)
 
         with open(os.path.join(self.dataset_dir, "metadata.json"), "w") as f:
@@ -42,7 +43,7 @@ class YTFacesProcessor:
                 "largest_res": self.largest_read_res
             }, f, indent=4)
 
-    def process_file(self, file_path, progress, invalidate_cache):
+    def process_file(self, file_path, progress, invalidate_cache, frames_per_recording):
         try:
             with np.load(file_path, mmap_mode="r") as data:
                 colour_images = data["colorImages"]
@@ -55,6 +56,8 @@ class YTFacesProcessor:
                 os.makedirs(name_dir, exist_ok=True)
 
                 num_frames = colour_images.shape[-1]
+                if frames_per_recording > 0:
+                    num_frames = min(num_frames, frames_per_recording)
                 formatted_name = f"{name[:25]:<25}"
 
                 frame_task = progress.add_task(f"[green]Frames {formatted_name}", total=num_frames)
@@ -79,7 +82,8 @@ class YTFacesProcessor:
         if res[1] > self.largest_read_res[1]:
             self.largest_read_res[1] = res[1]
         if not os.path.exists(face_path) or invalidate_cache:
-            cv2.imwrite(face_path, colour_image)
+            rgb_image = cv2.cvtColor(colour_image, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(face_path, rgb_image)
 
 
 class YTFacesDataset:
@@ -88,15 +92,15 @@ class YTFacesDataset:
         self.faces_dir = os.path.join(self.dataset_dir, "Faces")
         self.appropriate_res = None
 
-    def load(self, invalidate_split_cache=False, invalidate_faces_cache=False):
+    def load(self, frames_per_recording=-1, invalidate_split_cache=False, invalidate_faces_cache=False):
         if invalidate_split_cache:
             self.__invalidate_cache()
         if not os.path.exists(self.faces_dir) or invalidate_faces_cache:
-            YTFacesProcessor(self.dataset_dir).process(invalidate_faces_cache)
+            YTFacesProcessor(self.dataset_dir).process(invalidate_faces_cache, frames_per_recording)
         self.get_splits()
 
     def __invalidate_cache(self):
-        self.largest_res = None
+        self.appropriate_res = None
 
         def remove_split(split: str):
             split_dir = os.path.join(self.dataset_dir, split)
@@ -179,12 +183,12 @@ class YTFacesDataset:
         image = cv2.imread(file)
         res = image.shape[:2]
         appropriate_res = self.get_appropriate_res()
-        left_pad_x = (appropriate_res[0] - res[0]) // 2
-        top_pad_y = (appropriate_res[1] - res[1]) // 2
-        right_pad_x = left_pad_x + (appropriate_res[0] - res[0]) % 2
-        bottom_pad_y = top_pad_y + (appropriate_res[1] - res[1]) % 2
+        left_pad = math.ceil((appropriate_res[0] - res[0]) / 2)
+        right_pad = math.floor((appropriate_res[0] - res[0]) / 2)
+        top_pad = math.ceil((appropriate_res[1] - res[1]) / 2)
+        bottom_pad = math.floor((appropriate_res[1] - res[1]) / 2)
         try:
-            image = cv2.copyMakeBorder(image, top_pad_y, bottom_pad_y, left_pad_x, right_pad_x, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+            image = cv2.copyMakeBorder(image, top_pad, bottom_pad, left_pad, right_pad, cv2.BORDER_CONSTANT, value=[0, 0, 0])
             cv2.imwrite(file, image)
             return True
         except Exception:
