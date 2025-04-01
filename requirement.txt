@@ -9,3 +9,4 @@ kymatio
 scikit-image
 imutils
 opencv-contrib-python
+ipywidgets

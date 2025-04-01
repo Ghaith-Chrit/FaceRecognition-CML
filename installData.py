@@ -6,7 +6,8 @@ import config as cfg
 import kagglehub.auth
 import matplotlib.pyplot as plt
 
-from yt_faces_processor import YTFacesProcessor
+from mit_scenes import MITScenesProcessor
+from yt_faces import YTFacesProcessor
 
 def login():
     kagglehub.login()
@@ -100,6 +101,31 @@ def combine_all(src_path, dst_path):
     os.rmdir(src_path)
 
 
+def combine_non_person_classes_natural_images(src_path, dst_path):
+    if not os.path.exists(src_path):
+        return
+
+    print("Combining all non-person classes...")
+    if not os.path.exists(dst_path):
+        os.makedirs(dst_path)
+
+    images_path = os.path.join(src_path, "natural_images")
+
+    for path, _, files in os.walk(images_path):
+        if len(files) == 0:
+            continue
+        for file in files:
+            dist_file = file
+            if dist_file.startswith("person"):
+                os.remove(os.path.join(path, file))
+                continue
+            src_item_path = os.path.join(path, file)
+            dst_item_path = os.path.join(dst_path, dist_file)
+            shutil.move(src_item_path, dst_item_path)
+        os.rmdir(path)
+    os.rmdir(images_path)
+
+
 def print_report(face_dir, other_dir):
     faces_count = len(
         [f for f in os.listdir(face_dir) if os.path.isfile(os.path.join(face_dir, f))]
@@ -153,13 +179,25 @@ def process_yt_faces(root_dir):
     download_dataset_and_move(cfg.YT_FACES, yt_faces_path, args.force)
     YTFacesProcessor(yt_faces_path).process()
 
+def process_natural_images(root_dir):
+    natural_images_path = os.path.join(root_dir, cfg.DATA_NATURAL_IMAGES)
+
+    download_dataset_and_move(cfg.NATURAL_IMAGES, natural_images_path, args.force)
+    combine_non_person_classes_natural_images(natural_images_path, os.path.join(natural_images_path, "Other"))
+
+def process_scenes(root_dir):
+    scenes_path = os.path.join(root_dir, cfg.DATA_SCENES)
+
+    download_dataset_and_move(cfg.SCENES, scenes_path, args.force)
+    MITScenesProcessor(scenes_path).process()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "dataset",
         default="all",
-        help="Options: all, caltech, split, yt_faces",
-        choices=["all", "caltech", "split", "yt_faces"],
+        help="Options: all, caltech, split, yt_faces, natural_images, scenes, ade20k",
+        choices=["all", "caltech", "split", "yt_faces", "natural_images", "scenes", "ade20k"],
     )
 
     parser.add_argument("--force", default=False, help="Redownload data")
@@ -183,3 +221,9 @@ if __name__ == "__main__":
 
     if args.dataset == "yt_faces" or args.dataset == "all":
         process_yt_faces(ROOT_DIR)
+
+    if args.dataset == "natural_images" or args.dataset == "all":
+        process_natural_images(ROOT_DIR)
+
+    if args.dataset == "scenes" or args.dataset == "all":
+        process_scenes(ROOT_DIR)
