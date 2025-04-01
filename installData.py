@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from mit_scenes import MITScenesProcessor
 from yt_faces import YTFacesProcessor
 
-
 def login():
     kagglehub.login()
 

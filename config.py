@@ -4,6 +4,7 @@ FACE_DATASET = "jessicali9530/lfw-dataset"
 OTHER_DATASET = "joaopauloschuler/cifar10-128x128-resized-via-cai-super-resolution"
 NATURAL_IMAGES = "prasunroy/natural-images"
 SCENES = "itsahmad/indoor-scenes-cvpr-2019"
+YT_FACES = "selfishgene/youtube-faces-with-facial-keypoints"
 
 DATA_CALTECH_101 = "data/caltech"
 DATA_FACE_PATH = "data/face"
